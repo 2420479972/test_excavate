@@ -1,0 +1,25 @@
+.glass-effect {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.neon-border {
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+.neon-text {
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+.input-field {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    transition: all 0.3s;
+}
+.input-field:focus {
+    border-color: #00F0FF;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+.button-glow:hover {
+    box-shadow: 0 0 15px rgba(43, 124, 117, 0.7);
+    transform: scale(1.02);
+}
