@@ -1,7 +1,7 @@
 import {ref, watch} from "vue";
 import {getPublicVariable, watchEvent, writeContract} from "../utils/base.ts";
 import {Notify} from "../utils/Toast.ts";
-import {isAddress, parseEther} from "viem";
+import {formatEther, isAddress, parseEther} from "viem";
 import {bigintToNumberSafe} from "../utils";
 
 export const managementSet = () => {
@@ -148,10 +148,10 @@ export const updatePresaleConfig = () => {
 
 
     watch(_totalShares,(newVal)=>{
-        totalTokens.value = newVal
+        totalTokens.value = formatEther(newVal || 0)
     })
     watch(_sharePrice,(newVal)=>{
-        sharePrice.value = newVal
+        sharePrice.value = formatEther(newVal || 0)
     })
     watch(_startTime,(newVal)=>{
         start.value = formatDate(new Date(bigintToNumberSafe(newVal) * 1000))

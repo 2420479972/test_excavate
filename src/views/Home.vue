@@ -46,11 +46,11 @@
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">代币总量</p>
-                <p class="text-primary">{{presaleInfoData?.[0]}} 枚</p>
+                <p class="text-primary">{{formatEther(presaleInfoData?.[0] || 0)}} 枚</p>
               </div>
               <div>
                 <p class="text-gray-400 mb-1">1份价格</p>
-                <p class="text-primary">${{ presaleInfoData?.[1] || 0 }} USDT</p>
+                <p class="text-primary">${{ formatEther(presaleInfoData?.[1] || 0) }} USDT</p>
               </div>
             </div>
             <div class="py-3 grid grid-cols-2 gap-4">
@@ -194,7 +194,6 @@ const {data:availableRewardsData,setParams:availableRewardsSetData} = useRead<an
 
 
 watch(address,(newVal)=>{
-  console.log(newVal,'-------')
   availableRewardsSetData([newVal]);
   userInfoSetData([newVal]);
   setAllowanceData([newVal,contractConfigABI.address]);
