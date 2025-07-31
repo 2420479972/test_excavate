@@ -5,7 +5,7 @@
       <button class="hover:text-primary transition" @click="onMenuClick">
         <i class="fas fa-bars text-xl mr-2"></i>
       </button>
-      <span v-if="status == 'connected'" class="text-sm font-mono">{{ truncatedAddress }}</span>
+      <span v-if="isConnected" class="text-sm font-mono">{{ truncatedAddress }}</span>
       <button
           v-else
           class="ml-2 text-sm hover:text-primary transition border border-primary px-2 py-1 rounded"
@@ -35,7 +35,7 @@
       </div>
       <button
           class="ml-4 text-sm hover:text-primary transition"
-          v-if="status !== 'disconnected'" @click="disconnect()"
+          v-if="isConnected" @click="disconnect()"
       >
         <i class="fas fa-sign-out-alt"></i>
       </button>
@@ -44,20 +44,17 @@
 </template>
 
 <script setup lang="ts">
-// 引入 wagmi 钩子
-import {useConnect, useAccount, useDisconnect} from '@wagmi/vue'
+import {useConnect, useAccount, useDisconnect, useAccountEffect} from '@wagmi/vue'
 import { injected } from '@wagmi/vue/connectors'
 import {computed, onMounted, ref, watch} from "vue";
 import {storage} from "../store/connect.ts"
-// 钱包连接状态
-const { address, status,isConnected } = useAccount()
+const { address,status,isConnected} = useAccount()
 const { connect } = useConnect()
 const { disconnect } = useDisconnect()
-// 钱包连接逻辑
+
 const connectWallet = async () => {
    connect({ connector: injected() })
 }
-
 
 // 地址截断展示
 const truncatedAddress = computed(() => {
@@ -78,13 +75,13 @@ const changeLang = (lang: string) => {
 }
 
 onMounted(async () => {
-  const wasConnected = await storage.getItem('wallet-connected');
-  if (wasConnected && !isConnected.value) {
+  if(String(await storage.getItem('wallet-connected')) == "connected"){
     connect({ connector: injected() })
   }
 })
 
-watch(isConnected, (value) => {
+
+watch(status, (value) => {
   storage.setItem('wallet-connected', value) // 缓存连接状态
 })
 </script>

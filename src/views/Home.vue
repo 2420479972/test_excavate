@@ -20,7 +20,7 @@
     <!-- 时间模块 -->
     <section class="p-4 mb-6">
       <h1 class="gradient-text text-2xl font-bold text-center mb-4 animate-text">GDA预售中......</h1>
-      <Countdown></Countdown>
+      <Countdown :start-time="startAndEndTime.startTime" :end-time="startAndEndTime.endTime"></Countdown>
       <p class="text-xs text-center gradient-text">GDA社区云集共铸区块链只涨不跌神话</p>
     </section>
     <!-- 预售模块 -->
@@ -34,9 +34,9 @@
       <LineChart></LineChart>
       <div class="rounded-lg p-4">
         <div class="mb-4">
-          <p class="text-xs mt-1 text-purple-400">当前余额: 12,000 USDT</p>
+          <p class="text-xs mt-1 text-purple-400">当前余额: {{formatEther(String(userBalance || 0))}} USDT</p>
         </div>
-        <button class="w-full bg-gradient-to-r from-primary to-secondary text-dark font-bold py-2 rounded hover-glow">立即认购</button>
+        <button class="w-full bg-gradient-to-r from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" @click="buyShares">立即认购</button>
         <div class="mt-4">
           <button class="flex items-center justify-between w-full text-sm" @click="detailShow = !detailShow">
             <span>详细规则</span>
@@ -46,71 +46,77 @@
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">代币总量</p>
-                <p class="text-primary">25,000,000枚</p>
+                <p class="text-primary">{{presaleInfoData?.[0]}} 枚</p>
               </div>
               <div>
                 <p class="text-gray-400 mb-1">1份价格</p>
-                <p class="text-primary">$500 USDT</p>
+                <p class="text-primary">${{ presaleInfoData?.[1] || 0 }} USDT</p>
               </div>
             </div>
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">代币地址</p>
                 <div class="flex items-center">
-                  <span class="text-primary">0x8f2...3a4b</span>
-                  <button @click="copyText('123')" class="ml-2 text-gray-400 hover:text-primary">
+                  <span class="text-primary">{{formatAddress(presaleInfoData?.[2])}}</span>
+                  <button @click="copyText(String(presaleInfoData?.[2]))" class="ml-2 text-gray-400 hover:text-primary">
                     <i class="fas fa-copy"></i>
                   </button>
                 </div>
               </div>
               <div>
                 <p class="text-gray-400 mb-1">开放时间</p>
-                <p class="text-primary">2025.07.24 14:30</p>
+                <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[4])}}</p>
               </div>
             </div>
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">结束时间</p>
-                <p class="text-primary">2025.08.04 14:30</p>
+                <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[5])}}</p>
+
               </div>
               <div>
                 <p class="text-gray-400 mb-1">已购总量</p>
-                <p class="text-primary">280,000枚</p>
+                <p class="text-primary">{{bigintToNumberSafe(userInfoData?.[0] || 0)}}枚</p>
               </div>
             </div>
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">总购次数</p>
-                <p class="text-primary">1,564</p>
+                <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[7])}}</p>
               </div>
               <div>
                 <p class="text-gray-400 mb-1">剩余份数</p>
-                <p class="text-primary">50份</p>
+                <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[7])}}份</p>
               </div>
             </div>
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">每天限购</p>
-                <p class="text-primary">500份</p>
+                <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[8])}}份</p>
               </div>
               <div>
                 <p class="text-gray-400 mb-1">地址限购</p>
-                <p class="text-primary">1份</p>
+                <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[9])}}份</p>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+    <section class="rounded-lg p-4 mb-6 bg-gradient-to-br from-darkLight to-dark">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="gradient-text text-xl font-bold">GDA收益</h2>
+      </div>
+      <Proceed
+          :gdaAmount="bigintToNumberSafe(userInfoData?.[1])"
+          :pendingGDA="bigintToNumberSafe(availableRewardsData)"
+          :releaseGDA="5.1258"
+          :progress="50"
+          :multiple="2"
+          themeColor="primary"
+      />
+    </section>
     <!-- 收益模块 -->
-    <Proceed
-        :gdaAmount="15000"
-        :pendingGDA="423"
-        :releaseGDA="5.1258"
-        :progress="50"
-        :multiple="2"
-        themeColor="primary"
-    />
     <section class="rounded-lg p-4 mt-6 bg-gradient-to-br from-darkLight to-dark">
       <div class="flex justify-between items-center mb-4">
         <h2 class="gradient-text text-xl font-bold">认购记录</h2>
@@ -130,14 +136,133 @@ import "../assets/css/home.css"
 import Countdown from "../components/Countdown.vue";
 import LineChart from "../components/LineChart.vue";
 import Select from "../components/Select.vue";
-
-import {ref} from "vue";
-import {copyToClipboard} from "../utils/copy.ts";
+import {useRead} from "../hooks/Read.ts";
+import {computed, ref, watch} from "vue";
+import {bigintToNumberSafe, copyToClipboard, formatAddress, formatSecondsToDateTime} from "../utils";
 import Proceed from "../components/Proceed.vue";
 import Table from "../components/Table.vue";
 import Header from "../components/Header.vue";
+import {formatEther, parseEther} from "viem"
+import {useAccount, useWatchContractEvent} from "@wagmi/vue"
+import {useWrite} from "../hooks/useWrite.ts";
+import {contractConfigABI, erc20ConfigABI} from "../api"
+import {Notify} from "../utils/Toast.ts"
+import {getPublicVariable} from "../utils/base.ts";
+
+
+const {address} = useAccount();
 const selectDay = ref('1')
 const detailShow = ref(false);
+const {data:presaleInfoData} = useRead<any[]>(contractConfigABI,{
+  functionName:'getPresaleInfo',
+  blockNumberInterval: 1,
+  onSuccess(data) {
+    console.log(data);
+  },
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
+const startAndEndTime = computed(()=>({
+  startTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[4]) : 0,
+  endTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[5]):0
+}))
+
+const {data:userInfoData,setParams:userInfoSetData} = useRead<any[]>(contractConfigABI,{
+  functionName:'getUserInfo',
+  initParams:{
+    args:[address.value]
+  },
+  blockNumberInterval: 1,
+
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
+const {data:availableRewardsData,setParams:availableRewardsSetData} = useRead<any>(contractConfigABI,{
+  functionName:'getAvailableRewards',
+  initParams:{
+    args:[address.value]
+  },
+  blockNumberInterval: 1,
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
+
+watch(address,(newVal)=>{
+  console.log(newVal,'-------')
+  availableRewardsSetData([newVal]);
+  userInfoSetData([newVal]);
+  setAllowanceData([newVal,contractConfigABI.address]);
+  setUserBalance([newVal])
+  setPurchasedShares([newVal])
+},{
+  deep:true
+})
+
+
+
+
+const {data:allowanceData,setParams:setAllowanceData} = useRead(erc20ConfigABI,{
+  functionName:'allowance',
+  initParams:{
+    args:[address.value,contractConfigABI.address]
+  },
+  blockNumberInterval: 1,
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
+const {write:erc20Approve} = useWrite(erc20ConfigABI,{
+  functionName: 'approve',
+  waitForConfirmation: true,
+  onError(err) {
+    console.error('更新失败:', err);
+  },
+  onSuccess(){
+    buySharesWrite([1])
+  }
+})
+
+const {write:buySharesWrite} = useWrite(contractConfigABI,{
+  functionName: 'buyShares',
+  waitForConfirmation: true,
+  onError(err) {
+    console.error('更新失败:', err);
+  }
+})
+
+
+const {write:claimRewardsWrite} = useWrite(contractConfigABI,{
+  functionName: 'claimRewards',
+  waitForConfirmation: true,
+  onError(err) {
+    console.error('更新失败:', err);
+  }
+})
+
+const buyShares = ()=>{
+  if(Number(formatEther(allowanceData.value)) < Number(presaleInfoData.value[1])){
+    erc20Approve([contractConfigABI.address,parseEther(String(presaleInfoData.value[1]))])
+    return;
+  }
+  buySharesWrite([1])
+}
+useWatchContractEvent({
+  address:erc20ConfigABI.address,
+  abi:erc20ConfigABI.abi,
+  eventName: 'Approval',
+  onLogs(e){
+    Notify.success('授权成功')
+  }
+})
+
+
 const dayOptions = [
   { label: '1天', value: '1' },
   { label: '2天', value: '2' },
@@ -176,6 +301,26 @@ const tableData = new Array(40).fill({
   status: '20份',
   createdAt: '200'
 },)
+
+
+const  {data:userBalance,setParams:setUserBalance} = useRead(erc20ConfigABI,{
+  functionName:'balanceOf',
+  initParams:{
+    args:[address.value]
+  },
+  blockNumberInterval: 1,
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
+
+const  {data:purchasedShares,setParams:setPurchasedShares} = getPublicVariable('userPurchasedShares');
+
+watch(purchasedShares,(data)=>{
+  console.log(data,'123')
+})
+
 
 </script>
 
