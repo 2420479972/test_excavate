@@ -15,8 +15,5 @@ watch(ustdAddress,(newVal)=>{
 </script>
 
 <template>
-  <Home></Home>
-<!--  <Account/>-->
-<!--  <Back></Back>-->
-<!--  <Connect />-->
+<router-view></router-view>
 </template>
