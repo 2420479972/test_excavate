@@ -8,7 +8,6 @@ import {watch} from "vue";
 import {erc20ConfigABI} from "./api";
 import {useChainId} from "@wagmi/vue";
 
-const id = useChainId()
 const {data: ustdAddress} = getPublicVariable('usdt')
 watch(ustdAddress,(newVal)=>{
   erc20ConfigABI.address = "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24";
@@ -17,5 +16,4 @@ watch(ustdAddress,(newVal)=>{
 
 <template>
 <router-view></router-view>
-  {{id}}
 </template>
