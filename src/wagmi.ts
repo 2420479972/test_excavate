@@ -62,7 +62,7 @@ export const config = createConfig({
         //         }
         //     }
         // ),
-        [localChain.id]:http()
+        [localChain.id]:http("http://202.124.251.169:8545")
     },
 })
 declare module '@wagmi/vue' {
