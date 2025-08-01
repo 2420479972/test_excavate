@@ -1,16 +1,14 @@
 <template>
 <div class="flex flex-col h-screen">
   <Header></Header>
-    <div class="glass-effect py-2 px-4 mb-2">
+    <div class="glass-effect py-2 px-4 mb-2" v-if="notification">
       <div class="flex items-center">
         <div class="flex items-center mr-2">
           <i class="fas fa-bullhorn text-primary announcement-icon"></i>
         </div>
         <div class="overflow-hidden flex-1">
           <div class="announcement-text whitespace-nowrap text-sm">
-            GDA代币预售正式开启！
-            聚币交易所GDA和HI交易兑
-            全球限购5000份限时优惠，先到先得！马上参与预售，抢占先机。更多惊喜等你来！
+            {{notification}}
           </div>
         </div>
       </div>
@@ -19,7 +17,7 @@
     <div class="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none"></div>
     <!-- 时间模块 -->
     <section class="p-4 mb-6">
-      <h1 class="gradient-text text-2xl font-bold text-center mb-4 animate-text">GDA预售中......</h1>
+      <h1 class="gradient-text text-2xl font-bold text-center mb-4 animate-text" v-if="isCounting">GDA预售中......</h1>
       <Countdown :start-time="startAndEndTime.startTime" :end-time="startAndEndTime.endTime"></Countdown>
       <p class="text-xs text-center gradient-text">GDA社区云集共铸区块链只涨不跌神话</p>
     </section>
@@ -36,7 +34,7 @@
         <div class="mb-4">
           <p class="text-xs mt-1 text-purple-400">当前余额: {{formatEther(String(userBalance || 0))}} USDT</p>
         </div>
-        <button class="w-full bg-gradient-to-r from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" @click="buyShares">立即认购</button>
+        <button class="w-full bg-gradient-to-r from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" :style="{background:isBuyDisabled  && 'gray' || ''}" @click="buyShares" :disabled="isBuyDisabled">立即认购</button>
         <div class="mt-4">
           <button class="flex items-center justify-between w-full text-sm" @click="detailShow = !detailShow">
             <span>详细规则</span>
@@ -110,10 +108,12 @@
       <Proceed
           :gdaAmount="bigintToNumberSafe(userInfoData?.[1])"
           :pendingGDA="bigintToNumberSafe(availableRewardsData)"
-          :releaseGDA="5.1258"
-          :progress="50"
-          :multiple="2"
+          :releaseGDA="bigintToNumberSafe(userInfoData?.[2])"
+          :progress="bigintToNumberSafe(userInfoData?.[1]) == 0 ? 0 : Math.floor(bigintToNumberSafe(userInfoData?.[2])  / bigintToNumberSafe(userInfoData?.[1]))"
+          :multiple="rewardMultiplier"
           themeColor="primary"
+          @receive="receive"
+          :disabled="bigintToNumberSafe(availableRewardsData) < 1"
       />
     </section>
     <!-- 收益模块 -->
@@ -137,7 +137,7 @@ import Countdown from "../components/Countdown.vue";
 import LineChart from "../components/LineChart.vue";
 import Select from "../components/Select.vue";
 import {useRead} from "../hooks/Read.ts";
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {bigintToNumberSafe, copyToClipboard, formatAddress, formatSecondsToDateTime} from "../utils";
 import Proceed from "../components/Proceed.vue";
 import Table from "../components/Table.vue";
@@ -148,6 +148,7 @@ import {useWrite} from "../hooks/useWrite.ts";
 import {contractConfigABI, erc20ConfigABI} from "../api"
 import {Notify} from "../utils/Toast.ts"
 import {getPublicVariable} from "../utils/base.ts";
+import dayjs from 'dayjs'  // 导入 dayjs 库
 
 
 const {address} = useAccount();
@@ -168,6 +169,10 @@ const startAndEndTime = computed(()=>({
   startTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[4]) : 0,
   endTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[5]):0
 }))
+const now = ref(Math.floor(Date.now() / 1000))
+const isCounting = computed(() => {
+  return now.value >= startAndEndTime.value.startTime && now.value < startAndEndTime.value.endTime
+})
 
 const {data:userInfoData,setParams:userInfoSetData} = useRead<any[]>(contractConfigABI,{
   functionName:'getUserInfo',
@@ -193,19 +198,11 @@ const {data:availableRewardsData,setParams:availableRewardsSetData} = useRead<an
 })
 
 
-watch(address,(newVal)=>{
-  availableRewardsSetData([newVal]);
-  userInfoSetData([newVal]);
-  setAllowanceData([newVal,contractConfigABI.address]);
-  setUserBalance([newVal])
-  setPurchasedShares([newVal])
-},{
-  deep:true
-})
 
-
-
-
+const {data:rewardMultiplier} = getPublicVariable('rewardMultiplier')
+const {data:notification} = getPublicVariable('notification')
+const {data:addressLimit} = getPublicVariable('addressLimit')
+const {data:userPurchasedShares,setParams:setUserPurchasedShares} = getPublicVariable('userPurchasedShares');
 const {data:allowanceData,setParams:setAllowanceData} = useRead(erc20ConfigABI,{
   functionName:'allowance',
   initParams:{
@@ -217,18 +214,15 @@ const {data:allowanceData,setParams:setAllowanceData} = useRead(erc20ConfigABI,{
   }
 })
 
-const {write:erc20Approve} = useWrite(erc20ConfigABI,{
+const {write:erc20Approve,isPending:isAppPending} = useWrite(erc20ConfigABI,{
   functionName: 'approve',
   waitForConfirmation: true,
   onError(err) {
     console.error('更新失败:', err);
-  },
-  onSuccess(){
-    buySharesWrite([1])
   }
 })
 
-const {write:buySharesWrite} = useWrite(contractConfigABI,{
+const {write:buySharesWrite,isPending:isBuyPending} = useWrite(contractConfigABI,{
   functionName: 'buyShares',
   waitForConfirmation: true,
   onError(err) {
@@ -245,19 +239,40 @@ const {write:claimRewardsWrite} = useWrite(contractConfigABI,{
   }
 })
 
+
+const isBuyDisabled = computed(()=>{
+  return userPurchasedShares.value >= addressLimit.value  || isAppPending.value || isBuyPending.value || !isCounting.value
+})
+
 const buyShares = ()=>{
-  if(Number(formatEther(allowanceData.value)) < Number(presaleInfoData.value[1])){
-    erc20Approve([contractConfigABI.address,parseEther(String(presaleInfoData.value[1]))])
-    return;
+  if(userPurchasedShares.value >= addressLimit.value){
+    Notify.error('您已超过地址限购')
+    return
   }
-  buySharesWrite([1])
+  if(Number(formatEther(allowanceData.value)) < Number(formatEther(presaleInfoData.value[1]))){
+    erc20Approve([contractConfigABI.address,String(presaleInfoData.value[1])]);
+    return;
+  }else{
+    buySharesWrite([1])
+  }
 }
 useWatchContractEvent({
   address:erc20ConfigABI.address,
   abi:erc20ConfigABI.abi,
-  eventName: 'Approval',
-  onLogs(e){
-    Notify.success('授权成功')
+  eventName:'Approval',
+  onLogs(data){
+    if(Number(formatEther(data[0].args.value)) == Number(formatEther(presaleInfoData.value[1]))){
+      buySharesWrite([1])
+    }
+  }
+})
+
+useWatchContractEvent({
+  address:contractConfigABI.address,
+  abi:contractConfigABI.abi,
+  eventName: 'SharesPurchased',
+  onLogs(){
+    Notify.success("购买成功！")
   }
 })
 
@@ -313,14 +328,68 @@ const  {data:userBalance,setParams:setUserBalance} = useRead(erc20ConfigABI,{
   }
 })
 
+watch(selectDay,(neVal)=>{
+  getDataHistory(neVal)
+})
 
 const  {data:purchasedShares,setParams:setPurchasedShares} = getPublicVariable('userPurchasedShares');
+const  {data:dailyPurchased,setParams:setDailyPurchased} = getPublicVariable('dailyPurchased');
+const chartDay = ref([])
+const chartDayData = ref([])
+const getDataHistory = (Numb:number)=>{
+  chartDay.value = []
+  chartDayData.value =[]
+  for(let i = 1;i<=Numb;i++){
+    const targetDate = dayjs().subtract(i, 'day').unix()
+    setDailyPurchased([targetDate])
+  }
+}
 
-watch(purchasedShares,(data)=>{
-  console.log(data,'123')
+watch(dailyPurchased,(newVal)=>{
+  console.log(newVal)
 })
 
 
+const receive = ()=>{
+  if(userInfoData.value?.[5]){
+    Notify.warning('您的领取资格已被暂停')
+    return
+  }
+  claimRewardsWrite()
+}
+
+useWatchContractEvent({
+  address:contractConfigABI.address,
+  abi:contractConfigABI.abi,
+  eventName: 'RewardsClaimed',
+  onLogs(){
+    Notify.success("领取成功！")
+  }
+})
+
+
+watch(address,(newVal)=>{
+  if(!newVal)return;
+  availableRewardsSetData([newVal]);
+  userInfoSetData([newVal]);
+  setAllowanceData([newVal,contractConfigABI.address]);
+  setUserBalance([newVal])
+  setPurchasedShares([newVal])
+  setUserPurchasedShares([newVal])
+},{
+  deep:true,
+  immediate:true
+})
+
+
+const {data,setParams} = getPublicVariable('getPagedDaySales');
+watch(data,(res)=>{
+  console.log(res,'12312312312312312')
+})
+
+onMounted(()=>{
+  setParams([1,7])
+})
 </script>
 
 <style lang="scss" scoped>

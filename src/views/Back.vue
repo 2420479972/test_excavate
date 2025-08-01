@@ -400,8 +400,8 @@ const userRules = [
 const userAddress = ref('');
 const userPaused = ref(false);
 const  {data,setParams} =getPublicVariable('pausedRewards');
+
 watch(data,(newVal)=>{
-  console.log(newVal);
   userPaused.value = newVal
 })
 

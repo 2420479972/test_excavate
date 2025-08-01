@@ -34,8 +34,9 @@
       <div class="flex justify-between items-center">
         <span class="text-xs">当前释放 GDA: {{ releaseGDA }}枚</span>
         <button
+            :disabled="disabled"
             class="text-dark text-xs px-2 py-1 rounded hover-glow"
-            :style="{ backgroundColor: buttonColor }"
+            :style="{ backgroundColor: disabled ?'gray' :buttonColor }"
             @click="handleClaim"
         >
           提取
@@ -58,13 +59,14 @@ const props = withDefaults(
       progress: number
       buttonColor?: "#00BFFF" | "#FF69B4"
       themeColor?: 'primary' | 'secondary'
+      disabled?:boolean
     }>(),
     {
       themeColor: 'primary',
       buttonColor:"#00BFFF"
     }
 )
-
+const emit = defineEmits(['receive'])
 // 图标列表（三选一）
 const icons = ['fas fa-hammer', 'fas fa-coins', 'fas fa-gem']
 const randomIcon = ref('')
@@ -91,7 +93,7 @@ const gradientTo = computed(() =>
 
 // 点击提取按钮
 const handleClaim = () => {
-  console.log('提取GDA触发')
+  emit('receive');
 }
 </script>
 

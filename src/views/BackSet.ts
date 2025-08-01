@@ -49,20 +49,20 @@ export const GADSet = () => {
     }
 
     const GDARules = [
-        {type: 'required', message: '请输入GAD地址'},
+        {type: 'required', message: '请输入GDA地址'},
         {
             type: 'custom',
             validator: (val: string) => isAddress(val),
-            message: '请输入正确的GAD地址'
+            message: '请输入正确的GDA地址'
         }
     ]
 
     watchEvent('GDAAddressUpdated', (data) => {
         if (data[0].args.newGDA === newGDAAddress.value) {
-            Notify.success('新GAD设置成功')
+            Notify.success('新GDA设置成功')
             GDAAddress.value = ""
         } else {
-            Notify.error('新GAD设置失败')
+            Notify.error('新GDA设置失败')
         }
     })
     return {
@@ -177,7 +177,7 @@ export const updatePresaleConfig = () => {
     const {write} = writeContract('updatePresaleConfig');
     const setUpdatePresaleConfig = async () => {
         console.log([totalTokens.value,sharePrice.value,BigInt(Math.floor(new Date(start.value).getTime() / 1000)),BigInt(Math.floor(new Date(end.value).getTime() / 1000)),dailyLimit.value,addressLimit.value])
-        await write([totalTokens.value,sharePrice.value,BigInt(Math.floor(new Date(start.value).getTime() / 1000)),BigInt(Math.floor(new Date(end.value).getTime() / 1000)),dailyLimit.value,addressLimit.value]);
+        await write([parseEther(String(totalTokens.value)),parseEther(String(sharePrice.value)),BigInt(Math.floor(new Date(start.value).getTime() / 1000)),BigInt(Math.floor(new Date(end.value).getTime() / 1000)),dailyLimit.value,addressLimit.value]);
     }
 
 
@@ -268,8 +268,8 @@ export const updateRewardConfig = () => {
     }
 
 
-    watchEvent('AdminConfigUpdated', (data) => {
-        Notify.success('GAD释放设置修改成功')
+    watchEvent('AdminConfigUpdated', () => {
+        Notify.success('设置修改成功')
     })
 
 

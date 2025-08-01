@@ -17,6 +17,9 @@ importers:
       '@wagmi/vue':
         specifier: ^0.1.24
         version: 0.1.24(@tanstack/query-core@5.83.0)(@tanstack/vue-query@5.83.0(vue@3.5.18(typescript@5.8.3)))(bufferutil@4.0.9)(react@18.3.1)(typescript@5.8.3)(use-sync-external-store@1.2.0(react@18.3.1))(utf-8-validate@5.0.10)(viem@2.33.1(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.22.4))(vue@3.5.18(typescript@5.8.3))(zod@3.22.4)
+      dayjs:
+        specifier: ^1.11.13
+        version: 1.11.13
       echarts:
         specifier: ^5.6.0
         version: 5.6.0

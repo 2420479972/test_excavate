@@ -16,23 +16,23 @@
     </div>
 
     <div class="flex items-center">
-      <div class="dropdown relative">
-        <button class="flex items-center text-sm hover:text-primary transition">
-          <i class="fas fa-globe mr-1"></i>
-          <span>{{ currentLang }}</span>
-          <i class="fas fa-chevron-down ml-1 text-xs"></i>
-        </button>
-        <div class="dropdown-content absolute right-0 bg-dark rounded mt-1 shadow z-10">
-          <a
-              v-for="lang in langs"
-              :key="lang"
-              class="block px-4 py-2 hover:bg-darkLight cursor-pointer"
-              @click="changeLang(lang)"
-          >
-            {{ lang }}
-          </a>
-        </div>
-      </div>
+<!--      <div class="dropdown relative">-->
+<!--        <button class="flex items-center text-sm hover:text-primary transition">-->
+<!--          <i class="fas fa-globe mr-1"></i>-->
+<!--          <span>{{ currentLang }}</span>-->
+<!--          <i class="fas fa-chevron-down ml-1 text-xs"></i>-->
+<!--        </button>-->
+<!--        <div class="dropdown-content absolute right-0 bg-dark rounded mt-1 shadow z-10">-->
+<!--          <a-->
+<!--              v-for="lang in langs"-->
+<!--              :key="lang"-->
+<!--              class="block px-4 py-2 hover:bg-darkLight cursor-pointer"-->
+<!--              @click="changeLang(lang)"-->
+<!--          >-->
+<!--            {{ lang }}-->
+<!--          </a>-->
+<!--        </div>-->
+<!--      </div>-->
       <button
           class="ml-4 text-sm hover:text-primary transition"
           v-if="isConnected" @click="disconnect()"

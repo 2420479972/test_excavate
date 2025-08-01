@@ -2,8 +2,7 @@
   <!-- 倒计时容器 -->
   <div class="flex justify-center items-center mb-2" v-if="isCounting">
     <!-- 天 -->
-    <div class="countdown-box mr-1">{{ time.days[0] }}</div>
-    <div class="countdown-box mr-1">{{ time.days[1] }}</div>
+    <div class="countdown-box mr-1" v-for="item in time.days" :key="item">{{ item }}</div>
     <span class="mx-2 text-primary">天</span>
 
     <!-- 时 -->
