@@ -3,7 +3,7 @@ import {reactive} from "vue";
 import {erc20Abi} from "viem";
 
 export const contractConfigABI = reactive({
-    address:'0x10eac150F7Aa1Ee3fEf1758D4c996082ba875c84',
+    address:'0x2cdD4eeAa51C3AA8BDBa1bA77DfF13066F1b1725',
     abi:abis,
 })
 

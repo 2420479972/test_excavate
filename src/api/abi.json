@@ -415,6 +415,45 @@
 		"type": "function"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "allPurchaseRecords",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "buyer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "shares",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "usdtPaid",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "timestamp",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "day",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "dailyLimit",
 		"outputs": [
@@ -619,6 +658,67 @@
 				"type": "uint256"
 			}
 		],
+		"name": "getPagedAllPurchases",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "address",
+						"name": "buyer",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "shares",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "usdtPaid",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "day",
+						"type": "uint256"
+					}
+				],
+				"internalType": "struct GDAPresale.PurchaseRecord[]",
+				"name": "records",
+				"type": "tuple[]"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalPages",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalRecords",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "page",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "pageSize",
+				"type": "uint256"
+			}
+		],
 		"name": "getPagedDaySales",
 		"outputs": [
 			{
@@ -722,6 +822,24 @@
 			{
 				"internalType": "uint256",
 				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getTotalInflow",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "totalUSDT",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "totalPurchases",
 				"type": "uint256"
 			}
 		],
@@ -943,6 +1061,19 @@
 	{
 		"inputs": [],
 		"name": "totalTokens",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalUSDTReceived",
 		"outputs": [
 			{
 				"internalType": "uint256",

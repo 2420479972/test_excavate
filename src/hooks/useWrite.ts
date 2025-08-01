@@ -1,6 +1,7 @@
 import {useAccount, useWaitForTransactionReceipt, useWriteContract} from "@wagmi/vue";
 import {ref, watch} from "vue";
 import type {Abi, TransactionReceipt} from "viem";
+import {Notify} from "../utils/Toast.ts";
 
 // 创建一个ref来存储当前激活的交易哈希
 const activeTransactionHash = ref<`0x${string}` | undefined>(undefined);
@@ -8,7 +9,7 @@ const activeTransactionHash = ref<`0x${string}` | undefined>(undefined);
 type UseWriteType<FT> = {
     functionName?: FT,
     onSuccess?: (receipt: TransactionReceipt) => void,
-    onError?: (error: Error) => void,
+    onError?: (error: Error|string) => void,
     onSettled?: () => void,
     waitForConfirmation?: boolean,
     args?: readonly unknown[]
@@ -151,6 +152,7 @@ export const useWrite = <T>(config: { address: string, abi: any }, options: UseW
             const err = new Error("钱包未连接");
             error.value = err;
             options.onError?.(err);
+            Notify.error('请连接钱包')
             return null;
         }
 
@@ -213,7 +215,11 @@ export const useWrite = <T>(config: { address: string, abi: any }, options: UseW
         } catch (_error: any) {
             console.error('合约写入操作失败:', _error);
             error.value = _error;
-            options.onError?.(_error);
+            if (_error.message.includes('User rejected')) {
+                options.onError?.('用户拒绝授权');
+                Notify.error('用户已拒绝')
+                return null
+            }
             return null;
         } finally {
             options.onSettled?.();

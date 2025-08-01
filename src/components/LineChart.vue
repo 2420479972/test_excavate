@@ -30,36 +30,16 @@ echarts.use([
 const props = defineProps({
   xAxisData: {
     type: Array,
-    default: () => ['1日', '2日', '3日', '4日', '5日', '6日', '7日', '8日', '9日', '10日']
+    default: () => []
   },
   seriesData: {
-    type: Array,
-    default: () => [
-      {
-        name: '代币总量',
-        type: 'bar',
-        barWidth: '30%',
-        data: Array(10).fill(100000),
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(0, 240, 255, 0.8)' },
-            { offset: 1, color: 'rgba(0, 240, 255, 0.2)' }
-          ])
-        }
-      },
-      {
-        name: '已售数量',
-        type: 'bar',
-        barWidth: '30%',
-        data: [45000, 78000, 92000, 105000, 124000, 145000, 168000, 192000, 215000, 245000],
-        itemStyle: {
-          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(255, 51, 102, 0.8)' },
-            { offset: 1, color: 'rgba(255, 51, 102, 0.2)' }
-          ])
-        }
+    type: Object,
+    default: () => {
+      return {
+        data1:[],
+        data2:[]
       }
-    ]
+    }
   },
   legend: {
     type: Object,
@@ -117,7 +97,32 @@ const initChart = () => {
         color: 'rgba(255, 255, 255, 0.7)'
       }
     },
-    series: props.seriesData
+    series: [
+      {
+        name: '代币总量',
+        type: 'bar',
+        barWidth: '30%',
+        data: props.seriesData.data1,
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(0, 240, 255, 0.8)' },
+            { offset: 1, color: 'rgba(0, 240, 255, 0.2)' }
+          ])
+        }
+      },
+      {
+        name: '已售数量',
+        type: 'bar',
+        barWidth: '30%',
+        data: props.seriesData.data2,
+        itemStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(255, 51, 102, 0.8)' },
+            { offset: 1, color: 'rgba(255, 51, 102, 0.2)' }
+          ])
+        }
+      }
+    ]
   }
 
   chartInstance.setOption(option)

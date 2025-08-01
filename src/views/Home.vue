@@ -29,7 +29,7 @@
          <Select :options="dayOptions" v-model="selectDay"></Select>
         </div>
       </div>
-      <LineChart></LineChart>
+      <LineChart :series-data="chartDayData" :x-axis-data="chartDay"></LineChart>
       <div class="rounded-lg p-4">
         <div class="mb-4">
           <p class="text-xs mt-1 text-purple-400">当前余额: {{formatEther(String(userBalance || 0))}} USDT</p>
@@ -121,7 +121,7 @@
       <div class="flex justify-between items-center mb-4">
         <h2 class="gradient-text text-xl font-bold">认购记录</h2>
       </div>
-      <Table :data="tableData" :columns="columns">
+      <Table :data="tableData" :columns="columns" @load-more="loadMore" v-model:loading="tableLoading" :isLoadAll="isLoadAll">
         <template #cell-address="{row}">
           <div class="text-[#00F0FF]">{{row.address}}</div>
         </template>
@@ -152,7 +152,7 @@ import dayjs from 'dayjs'  // 导入 dayjs 库
 
 
 const {address} = useAccount();
-const selectDay = ref('1')
+const selectDay = ref("7")
 const detailShow = ref(false);
 const {data:presaleInfoData} = useRead<any[]>(contractConfigABI,{
   functionName:'getPresaleInfo',
@@ -210,6 +210,7 @@ const {data:allowanceData,setParams:setAllowanceData} = useRead(erc20ConfigABI,{
   },
   blockNumberInterval: 1,
   onError(error) {
+    Notify.error("出错了！")
     console.error('合约调用失败:', error);
   }
 })
@@ -218,6 +219,7 @@ const {write:erc20Approve,isPending:isAppPending} = useWrite(erc20ConfigABI,{
   functionName: 'approve',
   waitForConfirmation: true,
   onError(err) {
+    Notify.error("出错了！")
     console.error('更新失败:', err);
   }
 })
@@ -226,7 +228,8 @@ const {write:buySharesWrite,isPending:isBuyPending} = useWrite(contractConfigABI
   functionName: 'buyShares',
   waitForConfirmation: true,
   onError(err) {
-    console.error('更新失败:', err);
+    Notify.error("出错了！")
+    console.error('出错了', err);
   }
 })
 
@@ -235,13 +238,15 @@ const {write:claimRewardsWrite} = useWrite(contractConfigABI,{
   functionName: 'claimRewards',
   waitForConfirmation: true,
   onError(err) {
-    console.error('更新失败:', err);
+    Notify.error("出错了！")
+    console.error('出错了', err);
   }
 })
 
 
 const isBuyDisabled = computed(()=>{
-  return userPurchasedShares.value >= addressLimit.value  || isAppPending.value || isBuyPending.value || !isCounting.value
+  return userPurchasedShares.value >= addressLimit.value
+  // || isAppPending.value || isBuyPending.value || !isCounting.value
 })
 
 const buyShares = ()=>{
@@ -261,6 +266,7 @@ useWatchContractEvent({
   abi:erc20ConfigABI.abi,
   eventName:'Approval',
   onLogs(data){
+    console.log("用户已授权")
     if(Number(formatEther(data[0].args.value)) == Number(formatEther(presaleInfoData.value[1]))){
       buySharesWrite([1])
     }
@@ -285,9 +291,6 @@ const dayOptions = [
   { label: '5天', value: '5' },
   { label: '6天', value: '6' },
   { label: '7天', value: '7' },
-  { label: '8天', value: '8' },
-  { label: '9天', value: '9' },
-  { label: '10天', value: '10' }
 ];
 
 const copyText = (text:string)=>{
@@ -314,7 +317,32 @@ const tableData = new Array(40).fill({
   time: '7/18',
   status: '20份',
   createdAt: '200'
-},)
+})
+const isLoadAll = ref(false);
+const tableLoading = ref(false);
+const page = ref(1);
+function loadMore() {
+  page.value+=1;
+  setPagedAllPurchases([page.value,10])
+}
+const  {data:pagedAllPurchases,setParams:setPagedAllPurchases} = useRead(contractConfigABI,{
+  functionName:'getPagedAllPurchases',
+  initParams:{
+    args:[page.value,10]
+  },
+  blockNumberInterval: 1,
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
+
+watch(pagedAllPurchases,(newVal)=>{
+  tableLoading.value = false;
+  if(newVal?.[0].length < 10){
+    isLoadAll.value = true;
+  }
+})
 
 
 const  {data:userBalance,setParams:setUserBalance} = useRead(erc20ConfigABI,{
@@ -334,16 +362,8 @@ watch(selectDay,(neVal)=>{
 
 const  {data:purchasedShares,setParams:setPurchasedShares} = getPublicVariable('userPurchasedShares');
 const  {data:dailyPurchased,setParams:setDailyPurchased} = getPublicVariable('dailyPurchased');
-const chartDay = ref([])
-const chartDayData = ref([])
-const getDataHistory = (Numb:number)=>{
-  chartDay.value = []
-  chartDayData.value =[]
-  for(let i = 1;i<=Numb;i++){
-    const targetDate = dayjs().subtract(i, 'day').unix()
-    setDailyPurchased([targetDate])
-  }
-}
+
+
 
 watch(dailyPurchased,(newVal)=>{
   console.log(newVal)
@@ -381,10 +401,29 @@ watch(address,(newVal)=>{
   immediate:true
 })
 
+const chartDay = ref([])
+const chartDayData = ref({
+  data1:[],
+  data2:[]
+})
+const getDataHistory = (Numb:number)=>{
+  chartDay.value.length = Numb;
+  chartDayData.value.data1 =[]
+  chartDayData.value.data2 =[]
+  setParams([1,Numb])
+}
 
 const {data,setParams} = getPublicVariable('getPagedDaySales');
 watch(data,(res)=>{
-  console.log(res,'12312312312312312')
+  for(let i = selectDay.value - 1;i>=0 ;i--){
+    const targetDate = dayjs().subtract(selectDay.value - i, 'day').date()
+    chartDay.value[i] = targetDate + "日"
+    console.log(chartDay.value)
+  }
+  res?.[0].forEach((item,index)=>{
+    chartDayData.value.data2[selectDay.value - index - 1] = item.purchased
+    chartDayData.value.data1[index] = formatEther(presaleInfoData.value?.[0] || 0)
+  })
 })
 
 onMounted(()=>{
