@@ -1,6 +1,4 @@
 <template>
-  <div class="flex flex-col h-screen">
-    <Header></Header>
     <main class="py-4 px-4 relative flex-1 overflow-auto">
       <h1 class="text-2xl font-bold text-primary neon-text mb-4">系统设置</h1>
       <div class="space-y-6">
@@ -266,12 +264,10 @@
         </div>
       </div>
     </main>
-  </div>
 </template>
 
 <script lang="ts" setup>
 import "../assets/css/back.css"
-import Header from "../components/Header.vue";
 import {ref, watch} from "vue";
 import {copyToClipboard, formatAddress} from "../utils";
 import {Notify} from "../utils/Toast.ts";

@@ -35,11 +35,14 @@
         <span class="text-xs">当前释放 GDA: {{ releaseGDA }}枚</span>
         <button
             :disabled="disabled"
-            class="text-dark text-xs px-2 py-1 rounded hover-glow"
+            class="text-dark text-xs px-2 py-1 rounded hover-glow flex items-center justify-center"
             :style="{ backgroundColor: disabled ?'gray' :buttonColor }"
             @click="handleClaim"
         >
-          提取
+          <Loading v-if="loading"></Loading>
+          <span v-else>
+            提取
+          </span>
         </button>
       </div>
     </div>
@@ -48,6 +51,7 @@
 
 <script lang="ts" setup>
 import { computed, ref, onMounted } from 'vue'
+import Loading from "./Loading.vue";
 
 // 定义Props并提供默认值
 const props = withDefaults(
@@ -60,6 +64,7 @@ const props = withDefaults(
       buttonColor?: "#00BFFF" | "#FF69B4"
       themeColor?: 'primary' | 'secondary'
       disabled?:boolean
+      loading?:boolean
     }>(),
     {
       themeColor: 'primary',

@@ -1,6 +1,4 @@
 <template>
-<div class="flex flex-col h-screen">
-  <Header></Header>
     <div class="glass-effect py-2 px-4 mb-2" v-if="notification">
       <div class="flex items-center">
         <div class="flex items-center mr-2">
@@ -34,7 +32,12 @@
         <div class="mb-4">
           <p class="text-xs mt-1 text-purple-400">当前余额: {{formatEther(String(userBalance || 0))}} USDT</p>
         </div>
-        <button class="w-full bg-gradient-to-r from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" :style="{background:isBuyDisabled  && 'gray' || ''}" @click="buyShares" :disabled="isBuyDisabled">立即认购</button>
+        <button class="w-full bg-gradient-to-r flex items-center justify-center from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" :style="{background:isBuyDisabled  && 'gray' || ''}" @click="buyShares" :disabled="isBuyDisabled">
+          <Loading v-if="buyLoading"></Loading>
+          <span v-else>
+            立即认购
+          </span>
+        </button>
         <div class="mt-4">
           <button class="flex items-center justify-between w-full text-sm" @click="detailShow = !detailShow">
             <span>详细规则</span>
@@ -106,14 +109,15 @@
         <h2 class="gradient-text text-xl font-bold">GDA收益</h2>
       </div>
       <Proceed
-          :gdaAmount="bigintToNumberSafe(userInfoData?.[1])"
-          :pendingGDA="bigintToNumberSafe(availableRewardsData)"
-          :releaseGDA="bigintToNumberSafe(userInfoData?.[2])"
-          :progress="bigintToNumberSafe(userInfoData?.[1]) == 0 ? 0 : Math.floor(bigintToNumberSafe(userInfoData?.[2])  / bigintToNumberSafe(userInfoData?.[1]))"
+          :gdaAmount="formatEther(String(userInfoData?.[1] || 0))"
+          :pendingGDA="Number(formatEther(String(availableRewardsData || 0))).toFixed(2)"
+          :releaseGDA="Number(formatEther(String(userInfoData?.[2] || 0))).toFixed(2)"
+          :progress="formatEther(String(userInfoData?.[1] || 0)) == 0 ? 0 : Math.floor(formatEther(String(userInfoData?.[2] || 0))  / formatEther(String(userInfoData?.[1] || 0)))"
           :multiple="rewardMultiplier"
           themeColor="primary"
           @receive="receive"
-          :disabled="bigintToNumberSafe(availableRewardsData) < 1"
+          :loading="proceedLoading"
+          :disabled="formatEther(String(availableRewardsData || 0)) < 1"
       />
     </section>
     <!-- 收益模块 -->
@@ -128,7 +132,6 @@
       </Table>
     </section>
   </main>
-</div>
 </template>
 
 <script setup lang="ts">
@@ -141,14 +144,14 @@ import {computed, onMounted, ref, watch} from "vue";
 import {bigintToNumberSafe, copyToClipboard, formatAddress, formatSecondsToDateTime} from "../utils";
 import Proceed from "../components/Proceed.vue";
 import Table from "../components/Table.vue";
-import Header from "../components/Header.vue";
 import {formatEther, parseEther} from "viem"
 import {useAccount, useWatchContractEvent} from "@wagmi/vue"
 import {useWrite} from "../hooks/useWrite.ts";
 import {contractConfigABI, erc20ConfigABI} from "../api"
 import {Notify} from "../utils/Toast.ts"
 import {getPublicVariable} from "../utils/base.ts";
-import dayjs from 'dayjs'  // 导入 dayjs 库
+import dayjs from 'dayjs'
+import Loading from "../components/Loading.vue";  // 导入 dayjs 库
 
 
 const {address} = useAccount();
@@ -221,6 +224,7 @@ const {write:erc20Approve,isPending:isAppPending} = useWrite(erc20ConfigABI,{
   onError(err) {
     Notify.error("出错了！")
     console.error('更新失败:', err);
+    buyLoading.value = false;
   }
 })
 
@@ -230,7 +234,8 @@ const {write:buySharesWrite,isPending:isBuyPending} = useWrite(contractConfigABI
   onError(err) {
     Notify.error("出错了！")
     console.error('出错了', err);
-  }
+    buyLoading.value = false;
+  },
 })
 
 
@@ -240,16 +245,19 @@ const {write:claimRewardsWrite} = useWrite(contractConfigABI,{
   onError(err) {
     Notify.error("出错了！")
     console.error('出错了', err);
+    proceedLoading.value = false;
   }
 })
 
-
+const buyLoading = ref(false);
 const isBuyDisabled = computed(()=>{
-  return userPurchasedShares.value >= addressLimit.value
-  // || isAppPending.value || isBuyPending.value || !isCounting.value
+  return userPurchasedShares.value >= addressLimit.value || isAppPending.value || isBuyPending.value || buyLoading.value
+  // || !isCounting.value
 })
 
 const buyShares = ()=>{
+  buyLoading.value = true;
+  console.log(Number(formatEther(allowanceData.value)))
   if(userPurchasedShares.value >= addressLimit.value){
     Notify.error('您已超过地址限购')
     return
@@ -279,6 +287,7 @@ useWatchContractEvent({
   eventName: 'SharesPurchased',
   onLogs(){
     Notify.success("购买成功！")
+    buyLoading.value = false;
   }
 })
 
@@ -307,17 +316,12 @@ const copyText = (text:string)=>{
 const columns = [
   { label: '地址', key: 'address' },
   { label: '时间', key: 'time',class:["text-center"] },
-  { label: '数量', key: 'status',class:["text-center"] },
-  { label: '金额(USDT)', key: 'createdAt',class:["text-center"] }
+  { label: '数量', key: 'numb',class:["text-center"] },
+  { label: '金额(USDT)', key: 'usdt',class:["text-center"] }
 ]
 
 // 表格数据
-const tableData = new Array(40).fill({
-  address: '0x1231231232',
-  time: '7/18',
-  status: '20份',
-  createdAt: '200'
-})
+const tableData = ref([]);
 const isLoadAll = ref(false);
 const tableLoading = ref(false);
 const page = ref(1);
@@ -338,10 +342,21 @@ const  {data:pagedAllPurchases,setParams:setPagedAllPurchases} = useRead(contrac
 
 
 watch(pagedAllPurchases,(newVal)=>{
+  if(!newVal || newVal.length ==0) return;
   tableLoading.value = false;
+  console.log(newVal,"购买记录")
   if(newVal?.[0].length < 10){
     isLoadAll.value = true;
   }
+  tableData.value = newVal[0].map(item=>{
+    return {
+      address:formatAddress(item.buyer),
+      time:formatSecondsToDateTime(item.timestamp),
+      numb:item.shares,
+      usdt:formatEther(String(item.usdtPaid || 0))
+    }
+  })
+
 })
 
 
@@ -360,22 +375,17 @@ watch(selectDay,(neVal)=>{
   getDataHistory(neVal)
 })
 
-const  {data:purchasedShares,setParams:setPurchasedShares} = getPublicVariable('userPurchasedShares');
-const  {data:dailyPurchased,setParams:setDailyPurchased} = getPublicVariable('dailyPurchased');
-
-
-
-watch(dailyPurchased,(newVal)=>{
-  console.log(newVal)
-})
-
+const proceedLoading = ref(false);
 
 const receive = ()=>{
   if(userInfoData.value?.[5]){
     Notify.warning('您的领取资格已被暂停')
     return
   }
-  claimRewardsWrite()
+  if(Number(formatEther(String(availableRewardsData.value || 0))).toFixed(2) < 1) return;
+  proceedLoading.value = true;
+
+      claimRewardsWrite()
 }
 
 useWatchContractEvent({
@@ -384,6 +394,7 @@ useWatchContractEvent({
   eventName: 'RewardsClaimed',
   onLogs(){
     Notify.success("领取成功！")
+    proceedLoading.value = false;
   }
 })
 
@@ -394,7 +405,6 @@ watch(address,(newVal)=>{
   userInfoSetData([newVal]);
   setAllowanceData([newVal,contractConfigABI.address]);
   setUserBalance([newVal])
-  setPurchasedShares([newVal])
   setUserPurchasedShares([newVal])
 },{
   deep:true,

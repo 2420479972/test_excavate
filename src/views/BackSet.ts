@@ -147,24 +147,7 @@ export const updatePresaleConfig = () => {
     const {data: _addressLimit} = getPublicVariable('addressLimit') // 结束时间
 
 
-    watch(_totalShares,(newVal)=>{
-        totalTokens.value = formatEther(newVal || 0)
-    })
-    watch(_sharePrice,(newVal)=>{
-        sharePrice.value = formatEther(newVal || 0)
-    })
-    watch(_startTime,(newVal)=>{
-        start.value = formatDate(new Date(bigintToNumberSafe(newVal) * 1000))
-    })
-    watch(_endTime,(newVal)=>{
-        end.value = formatDate(new Date(bigintToNumberSafe(newVal) * 1000))
-    })
-    watch(_dailyLimit,(newVal)=>{
-        dailyLimit.value = newVal
-    })
-    watch(_addressLimit,(newVal)=>{
-        addressLimit.value = newVal
-    })
+
 
     const totalTokens = ref(0);
     const sharePrice = ref(0);
@@ -225,7 +208,42 @@ export const updatePresaleConfig = () => {
         ]
     }
 
-
+    watch(_totalShares,(newVal)=>{
+        totalTokens.value = formatEther(newVal || 0)
+    },{
+        deep:true,
+        immediate:true
+    })
+    watch(_sharePrice,(newVal)=>{
+        sharePrice.value = formatEther(newVal || 0)
+    },{
+        deep:true,
+        immediate:true
+    })
+    watch(_startTime,(newVal)=>{
+        start.value = formatDate(new Date(bigintToNumberSafe(newVal) * 1000))
+    },{
+        deep:true,
+        immediate:true
+    })
+    watch(_endTime,(newVal)=>{
+        end.value = formatDate(new Date(bigintToNumberSafe(newVal) * 1000))
+    },{
+        deep:true,
+        immediate:true
+    })
+    watch(_dailyLimit,(newVal)=>{
+        dailyLimit.value = newVal
+    },{
+        deep:true,
+        immediate:true
+    })
+    watch(_addressLimit,(newVal)=>{
+        addressLimit.value = newVal
+    },{
+        deep:true,
+        immediate:true
+    })
 
     return {
         setUpdatePresaleConfig,
@@ -246,16 +264,7 @@ export const updateRewardConfig = () => {
     const {data: _cycle} = getPublicVariable('releaseCycle') // 释放周期
 
 
-    watch(_multiplier,(newVal)=>{
-        multiplier.value = newVal
-    })
 
-    watch(_releaseRate,(newVal)=>{
-        releaseRate.value = newVal
-    })
-    watch(_cycle,(newVal)=>{
-        cycle.value = newVal
-    })
 
     const multiplier = ref(0);
     const releaseRate = ref(0);
@@ -288,7 +297,25 @@ export const updateRewardConfig = () => {
         ],
     }
 
+    watch(_multiplier,(newVal)=>{
+        multiplier.value = newVal
+    },{
+        deep:true,
+        immediate:true
+    })
 
+    watch(_releaseRate,(newVal)=>{
+        releaseRate.value = newVal
+    },{
+        deep:true,
+        immediate:true
+    })
+    watch(_cycle,(newVal)=>{
+        cycle.value = newVal
+    },{
+        deep:true,
+        immediate:true
+    })
 
     return {
         setUpdateRewardConfig,

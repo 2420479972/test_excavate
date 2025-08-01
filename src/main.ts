@@ -12,7 +12,7 @@ const queryClient = new QueryClient()
 import App from './App.vue'
 import './style.css'
 import { config } from './wagmi'
-
+console.log = ()=>{};
 const app = createApp(App).use(router)
 
 app.use(WagmiPlugin, { config }).use(VueQueryPlugin, {queryClient})

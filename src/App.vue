@@ -8,6 +8,7 @@ import {watch} from "vue";
 import {erc20ConfigABI} from "./api";
 import {useAccount, useChainId} from "@wagmi/vue";
 import {localAddress,ownerAddress} from "./store/address.ts";
+import Header from "./components/Header.vue";
 
 const {data: ustdAddress} = getPublicVariable('usdt')
 const {data: owner} = getPublicVariable('owner')
@@ -39,5 +40,8 @@ watch(owner,(newVal:string)=>{
 </script>
 
 <template>
-<router-view></router-view>
+  <div class="flex flex-col h-screen">
+    <Header></Header>
+    <router-view></router-view>
+  </div>
 </template>

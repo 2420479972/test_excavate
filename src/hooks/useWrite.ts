@@ -126,7 +126,7 @@ export const useWrite = <T>(config: { address: string, abi: any }, options: UseW
 
             // 如果交易哈希有效，尝试通过其他方式获取交易结果
             if (txHash.value) {
-
+                options.onError?.(receiptError.value);
                 // 保留错误日志但不触发错误回调
                 console.error('获取交易收据错误:', receiptError.value);
             } else {
