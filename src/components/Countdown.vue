@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 // ✅ 定义父组件传入的 props：开始时间、结束时间（单位：秒）
 const props = defineProps<{
@@ -82,3 +82,6 @@ onUnmounted(() => {
   if (timer) clearInterval(timer)
 })
 </script>
+<style scoped>
+@import "../assets/css/home.css";
+</style>

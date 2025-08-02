@@ -57,9 +57,9 @@ import Loading from "./Loading.vue";
 const props = withDefaults(
     defineProps<{
       multiple: number
-      gdaAmount: number
-      pendingGDA: number
-      releaseGDA: number
+      gdaAmount: string
+      pendingGDA: string
+      releaseGDA: string
       progress: number
       buttonColor?: "#00BFFF" | "#FF69B4"
       themeColor?: 'primary' | 'secondary'

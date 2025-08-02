@@ -7,7 +7,7 @@ const routes: RouteRecordRaw[] = [
     {
         path: '/', // 首页路径
         name: 'Home', // 路由名称
-        component: () => import('../views/Home.vue')
+        component: () => import('../views/home/index.vue')
     },
     {
         path: '/back',
