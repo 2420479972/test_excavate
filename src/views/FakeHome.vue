@@ -29,7 +29,7 @@
             <div class="py-3 grid grid-cols-2 gap-4">
               <div>
                 <p class="text-gray-400 mb-1">代币总量</p>
-                <p class="text-primary">{{10000}} 枚</p>
+                <p class="text-primary">{{500 * 5000}} 枚</p>
               </div>
               <div>
                 <p class="text-gray-400 mb-1">1份价格</p>

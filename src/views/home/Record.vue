@@ -124,7 +124,7 @@ const pushRecord = (size:number = 10)=>{
       usdt:formatEther(presaleInfoData.value?.[1] || 0)
     })
   }
-  if(tableData.value.length > 200){
+  if(tableData.value.length > 500){
     finished.value = true;
   }
   loading.value = false;
