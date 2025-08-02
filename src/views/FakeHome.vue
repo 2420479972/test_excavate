@@ -111,7 +111,7 @@ const {data:presaleInfoData} = getPublicVariable('getPresaleInfo');
 
 const startAndEndTime = computed(()=>({
   startTime:dayjs('2025-08-02 20:00:00').unix(),
-  endTime:dayjs().add(10, 'day').unix()
+  endTime:dayjs('2025-08-12 20:00:00').unix()
 }))
 
 

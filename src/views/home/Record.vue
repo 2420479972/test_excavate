@@ -22,7 +22,7 @@
 
 // 表头配置
 import TableV from "../../components/TableV.vue";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useRead} from "../../hooks/Read.ts";
 import {contractConfigABI} from "../../api";
 import {Wallet} from "ethers";
@@ -30,8 +30,10 @@ import {formatAddress, formatSecondsToDateTime} from "../../utils";
 import dayjs from "dayjs";
 import {formatEther} from "viem";
 import {getPublicVariable} from "../../utils/base.ts";
+import ConfirmModal from "../../components/ConfirmModal.vue";
 import Modal from "../../components/Modal.vue";
 import ScrollTable from "../../components/ScrollTable.vue";
+
 
 const columns = [
   { label: '地址', key: 'address' },
@@ -60,46 +62,47 @@ const showMore = ref(false);
 
 let isFinished = false;
 const loadMore = ()=>{
+  pushRecord(10)
   if(isFinished){
     pushRecord(10)
     return;
   }
   page.value +=1;
-  setPagedAllPurchases([page.value,10]);
+  // setPagedAllPurchases([page.value,10]);
 }
 
 
 watch(pagedAllPurchases,(newVal)=>{
   if(!newVal) return;
-  if(newVal[0].length < 10){
-    tableData.value.push(...(newVal[0].map((item:any)=>{
-      return {
-        address:formatAddress(item.buyer) ,
-        time:formatSecondsToDateTime(item.timestamp),
-        numb:item.shares,
-        usdt:formatEther(String(item.usdtPaid || 0) as any)
-      }
-    })))
-    isFinished = true;
-    pushRecord(10 - newVal[0].length)
-    return;
-  }else{
-    tableData.value.push(...(newVal[0].map((item:any)=>{
-      return {
-        address:formatAddress(item.buyer) ,
-        time:formatSecondsToDateTime(item.timestamp),
-        numb:item.shares,
-        usdt:formatEther(String(item.usdtPaid || 0) as any)
-      }
-    })))
-  }
+  // if(newVal[0].length < 10){
+  //   tableData.value.push(...(newVal[0].map((item:any)=>{
+  //     return {
+  //       address:formatAddress(item.buyer) ,
+  //       time:formatSecondsToDateTime(item.timestamp),
+  //       numb:item.shares,
+  //       usdt:formatEther(String(item.usdtPaid || 0) as any)
+  //     }
+  //   })))
+  //   isFinished = true;
+  //   pushRecord(10 - newVal[0].length)
+  //   return;
+  // }else{
+  //   tableData.value.push(...(newVal[0].map((item:any)=>{
+  //     return {
+  //       address:formatAddress(item.buyer) ,
+  //       time:formatSecondsToDateTime(item.timestamp),
+  //       numb:item.shares,
+  //       usdt:formatEther(String(item.usdtPaid || 0) as any)
+  //     }
+  //   })))
+  // }
   loading.value = false;
 })
 
 const {data:presaleInfoData} = getPublicVariable('getPresaleInfo');
 
 const pushRecord = (size:number = 10)=>{
-  if(!isFinished)return;
+  if(finished.value) return;
   // 固定的最小时间
   const minDate = dayjs('2025-08-02')
 // 当前时间
@@ -107,11 +110,11 @@ const pushRecord = (size:number = 10)=>{
 
 // 计算 minDate 和当前时间之间的天数差（用于随机范围）
   const diffDays = nowDate.diff(minDate, 'day') // 可能是 0~6 天之间
+  console.log('---------------')
   for(let i =0;i <size; i++){
     const wallet = Wallet.createRandom() // 创建随机钱包实例
     // 在 [0, diffDays] 范围内取一个随机整数
     const randomOffset = Math.floor(Math.random() * (diffDays + 1))
-
     // 生成最终的随机时间（不能早于 2025-08-02）
     const randomDate = nowDate.subtract(randomOffset, 'day').format('YYYY-MM-DD')
     tableData.value.push({
@@ -126,6 +129,10 @@ const pushRecord = (size:number = 10)=>{
   }
   loading.value = false;
 }
+
+onMounted(()=>{
+  pushRecord(10)
+})
 
 </script>
 
