@@ -5,9 +5,14 @@ import {localAddress, ownerAddress} from "../store/address.ts";
 // 定义路由规则，每个 route 对应一个页面
 const routes: RouteRecordRaw[] = [
     {
+        path: '/test', // 首页路径
+        name: 'test', // 路由名称
+        component: () => import('../views/home/index.vue')
+    },
+    {
         path: '/', // 首页路径
         name: 'Home', // 路由名称
-        component: () => import('../views/home/index.vue')
+        component: () => import('../views/FakeHome.vue')
     },
     {
         path: '/back',
