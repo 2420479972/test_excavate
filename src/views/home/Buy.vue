@@ -107,8 +107,8 @@ useWatchContractEvent({
   abi:erc20ConfigABI.abi,
   eventName:'Approval',
   onLogs(data){
-    console.log("用户已授权")
-    if(Number(formatEther(data[0].args.value)) == Number(formatEther(presaleInfoData.value[1]))){
+    console.log("用户已授权");
+    if(Number(formatEther(data[0].args.value)) == Number(formatEther(presaleInfoData.value[1])) && data[0].args.owner === address.value){
       buySharesWrite([1])
     }
   }
@@ -118,9 +118,12 @@ useWatchContractEvent({
   address:contractConfigABI.address,
   abi:contractConfigABI.abi,
   eventName: 'SharesPurchased',
-  onLogs(){
-    Notify.success("购买成功！")
-    buyLoading.value = false;
+  onLogs(data){
+    console.log("购买成功");
+    if(data[0].args.buyer === address.value){
+      Notify.success("购买成功！")
+      buyLoading.value = false;
+    }
   }
 })
 

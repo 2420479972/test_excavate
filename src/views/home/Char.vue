@@ -17,7 +17,7 @@ import {getPublicVariable} from "../../utils/base.ts";
 import dayjs from "dayjs";
 import {formatEther} from "viem";
 
-const selectDay = ref(7)
+const selectDay = ref(1)
 
 const dayOptions = [
   { label: '1天', value: 1 },

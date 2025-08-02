@@ -71,9 +71,11 @@ useWatchContractEvent({
   address:contractConfigABI.address,
   abi:contractConfigABI.abi,
   eventName: 'RewardsClaimed',
-  onLogs(){
-    Notify.success("领取成功！")
-    proceedLoading.value = false;
+  onLogs(data){
+    if(data[0].args.user === address.value){
+      Notify.success("领取成功！")
+      proceedLoading.value = false;
+    }
   }
 })
 
