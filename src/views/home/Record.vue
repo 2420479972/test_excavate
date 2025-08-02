@@ -30,11 +30,8 @@ import {formatAddress, formatSecondsToDateTime} from "../../utils";
 import dayjs from "dayjs";
 import {formatEther} from "viem";
 import {getPublicVariable} from "../../utils/base.ts";
-import ConfirmModal from "../../components/ConfirmModal.vue";
 import Modal from "../../components/Modal.vue";
-import D from "../../components/d.vue";
 import ScrollTable from "../../components/ScrollTable.vue";
-
 
 const columns = [
   { label: '地址', key: 'address' },

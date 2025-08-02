@@ -3,7 +3,7 @@
     <notice></notice>
     <div class="px-5">
       <section class="p-4 mb-6">
-        <h1 class="gradient-text text-2xl font-bold text-center mb-4 animate-text">已售罄</h1>
+        <h1 class="gradient-text text-2xl font-bold text-center mb-4 animate-text" v-if="isSellout">已售罄</h1>
         <Countdown :start-time="startAndEndTime.startTime" :end-time="startAndEndTime.endTime"></Countdown>
         <p class="text-xs text-center gradient-text">GDA社区云集共铸区块链只涨不跌神话</p>
       </section>
@@ -85,16 +85,13 @@
           </div>
         </div>
       </section>
-      <record></record>
+      <record :show="isSellout"></record>
     </div>
   </main>
 
 </template>
 
 <script setup lang="ts">
-import PreSaleTime from "./home/PreSaleTime.vue";
-import PreSale from "./home/PreSale.vue";
-import Earnings from "./home/Earnings.vue";
 import Notice from "./home/Notice.vue";
 import Record from "./home/Record.vue";
 import Countdown from "../components/Countdown.vue";
@@ -102,21 +99,19 @@ import {getPublicVariable} from "../utils/base.ts";
 import {computed, ref, watch} from "vue";
 import {bigintToNumberSafe, copyToClipboard, formatAddress, formatSecondsToDateTime} from "../utils";
 import LineChart from "../components/LineChart.vue";
-import Select from "../components/Select.vue";
 import {formatEther} from "viem";
-import Loading from "../components/Loading.vue";
 import {useRead} from "../hooks/Read.ts";
 import {erc20ConfigABI} from "../api";
 import {useAccount} from "@wagmi/vue";
-import PreSaleDetail from "./home/PreSaleDetail.vue";
 import {Notify} from "../utils/Toast.ts";
+import dayjs from "dayjs";
 
 
 const {data:presaleInfoData} = getPublicVariable('getPresaleInfo');
 
 const startAndEndTime = computed(()=>({
-  startTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[4]) : 0,
-  endTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[5]):0
+  startTime:dayjs('2025-08-02 20:00:00').unix(),
+  endTime:dayjs().add(10, 'day').unix()
 }))
 
 
@@ -126,14 +121,9 @@ const chartDayData = ref<{
   data2:any[]
 }>({
   data1:[],
-  data2:[500]
+  data2:[]
 })
 
-
-watch(presaleInfoData,(res)=>{
-  chartDayData.value.data1 = [formatEther(res?.[0] || 0)]
-  chartDayData.value.data2 = [500]
-})
 
 const {address} = useAccount();
 
@@ -165,6 +155,21 @@ const copyText = (text:string)=>{
         Notify.error('复制失败');
       });
 }
+
+const isSellout = ref(false);
+
+
+
+const time = setInterval(()=>{
+  const now = dayjs().unix();
+  const after = dayjs('2025-08-02 20:00:00').unix()
+  if(now > after){
+    isSellout.value = true;
+    chartDayData.value.data1 = [500 * 5000]
+    chartDayData.value.data2 = [500]
+    clearInterval(time)
+  }
+},1000)
 
 </script>
 
