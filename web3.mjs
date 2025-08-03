@@ -24,7 +24,9 @@ async function main(){
     let did=config.did
     await myAccount.provision(did)
     await client.setCurrentSpace(did)
+
     var files = await filesFromPaths(['dist/'])
+
     var fss=[]
     for(let i=0;i<files.length;i++){
         let pathFile = files[i];
