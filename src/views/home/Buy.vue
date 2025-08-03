@@ -1,6 +1,6 @@
 <template>
   <div class="mb-4 mt-2">
-    <p class="text-xs mt-1 text-purple-400">USDT余额: {{ formatEther(String(userBalance) as any) }} <span class="ml-5">GDA余额: {{ formatEther(String(userGDABalance || 0) as any) }}</span></p>
+    <p class="text-xs mt-1 text-purple-400">USDT余额: {{ Number(formatEther(String(userBalance as any || 0))).toFixed(2)  }} <span class="ml-5">GDA余额: {{ Number(formatEther(String(userGDABalance || 0) as any)).toFixed(2) }}</span></p>
     <p class="text-xs mt-1 text-purple-400"></p>
   </div>
   <button class="w-full bg-gradient-to-r flex items-center justify-center from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" :style="{background:isBuyDisabled  && 'gray' || ''}" @click="buyShares" :disabled="isBuyDisabled">
