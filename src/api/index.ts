@@ -11,3 +11,7 @@ export const erc20ConfigABI = reactive({
     address:'0x55d398326f99059fF775485246999027B3197955', //USDT地址：0x55d398326f99059fF775485246999027B3197955
     abi:erc20Abi,
 })
+export const erc20GDAConfigABI = reactive({
+    address:'0xf7af106c717f3207e642257accd258fcda4f3c7b', //USDT地址：0x55d398326f99059fF775485246999027B3197955
+    abi:erc20Abi,
+})

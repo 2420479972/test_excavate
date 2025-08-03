@@ -1,6 +1,7 @@
 <template>
   <div class="mb-4 mt-2">
-    <p class="text-xs mt-1 text-purple-400">当前余额: {{ formatEther(String(userBalance || 0) as any) }} USDT</p>
+    <p class="text-xs mt-1 text-purple-400">USDT余额: {{ formatEther(String(userBalance) as any) }} <span class="ml-5">GDA余额: {{ formatEther(String(userGDABalance || 0) as any) }}</span></p>
+    <p class="text-xs mt-1 text-purple-400"></p>
   </div>
   <button class="w-full bg-gradient-to-r flex items-center justify-center from-primary to-secondary text-dark font-bold py-2 rounded hover-glow" :style="{background:isBuyDisabled  && 'gray' || ''}" @click="buyShares" :disabled="isBuyDisabled">
     <Loading v-if="buyLoading"></Loading>
@@ -14,7 +15,7 @@
 import {formatEther} from "viem";
 import Loading from "../../components/Loading.vue";
 import {useRead} from "../../hooks/Read.ts";
-import {contractConfigABI, erc20ConfigABI} from "../../api";
+import {contractConfigABI, erc20ConfigABI, erc20GDAConfigABI} from "../../api";
 import {computed, ref, watch} from "vue";
 import {useAccount, useWatchContractEvent} from "@wagmi/vue";
 import {Notify} from "../../utils/Toast.ts";
@@ -34,6 +35,19 @@ const  {data:userBalance,setParams:setUserBalance} = useRead(erc20ConfigABI,{
     console.error('合约调用失败:', error);
   }
 })
+
+
+const  {data:userGDABalance,setParams:setUserGDABalance} = useRead(erc20GDAConfigABI,{
+  functionName:'balanceOf',
+  initParams:{
+    args:[address.value]
+  },
+  blockNumberInterval: 1,
+  onError(error) {
+    console.error('合约调用失败:', error);
+  }
+})
+
 
 const startAndEndTime = computed(()=>({
   startTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[4]) : 0,
@@ -132,6 +146,7 @@ watch(address,(newVal)=>{
   setUserBalance([newVal])
   setAllowanceData([newVal,contractConfigABI.address])
   setUserPurchasedShares([newVal])
+  setUserGDABalance([newVal])
 },{
   immediate:true
 })
