@@ -3,11 +3,11 @@ import {reactive} from "vue";
 import {erc20Abi} from "viem";
 
 export const contractConfigABI = reactive({
-    address:'0x76140F8Aa10cd480E1f3Be13E5fEEd5b9cB94097',
+    address:'0xeC67DD0a9B3Cf6d7eF5b17048706b1f523C705Fe', // 0xeC67DD0a9B3Cf6d7eF5b17048706b1f523C705Fe
     abi:abis,
 })
 
 export const erc20ConfigABI = reactive({
-    address:'0x10c12af81ce8Cf7e78cb2E19f773F2236F1B9D5A',
+    address:'0x55d398326f99059fF775485246999027B3197955', //USDT地址：0x55d398326f99059fF775485246999027B3197955
     abi:erc20Abi,
 })

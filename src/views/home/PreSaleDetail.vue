@@ -33,7 +33,7 @@
         <div class="py-3 grid grid-cols-2 gap-4">
           <div>
             <p class="text-gray-400 mb-1">结束时间</p>
-            <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[5])}}</p>
+            <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[5] || 0)}}</p>
 
           </div>
           <div>
@@ -44,21 +44,21 @@
         <div class="py-3 grid grid-cols-2 gap-4">
           <div>
             <p class="text-gray-400 mb-1">总购次数</p>
-            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[7])}}</p>
+            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[6] || 0)}}次</p>
           </div>
           <div>
             <p class="text-gray-400 mb-1">剩余份数</p>
-            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[7])}}份</p>
+            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[7] || 0)}}份</p>
           </div>
         </div>
         <div class="py-3 grid grid-cols-2 gap-4">
           <div>
             <p class="text-gray-400 mb-1">每天限购</p>
-            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[8])}}份</p>
+            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[8] || 0)}}份</p>
           </div>
           <div>
             <p class="text-gray-400 mb-1">地址限购</p>
-            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[9])}}份</p>
+            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[9] || 0)}}份</p>
           </div>
         </div>
       </div>

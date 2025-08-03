@@ -42,7 +42,11 @@ const chartDayData = ref<{
 
 
 const getDataHistory = (Numb:number)=>{
-  chartDay.value.length = Numb;
+  chartDay.value.length = 0
+  for(let i = selectDay.value - 1;i>=0 ;i--){
+    const targetDate = dayjs().subtract(selectDay.value - i, 'day').date()
+    chartDay.value[i] = targetDate + "日"
+  }
   chartDayData.value.data1 =[]
   chartDayData.value.data2 =[]
   setParams([1,Numb])
@@ -53,13 +57,8 @@ const {data:presaleInfoData} = getPublicVariable('getPresaleInfo');
 const {data,setParams} = getPublicVariable('getPagedDaySales');
 
 watch(data,(res)=>{
-  for(let i = selectDay.value - 1;i>=0 ;i--){
-    const targetDate = dayjs().subtract(selectDay.value - i, 'day').date()
-    chartDay.value[i] = targetDate + "日"
-    console.log(chartDay.value)
-  }
   res?.[0].forEach((item:any,index:number)=>{
-    chartDayData.value.data2[selectDay.value - index - 1] = item.purchased
+    chartDayData.value.data2[selectDay.value - index - 1] = item.purchased || 0
     chartDayData.value.data1[index] = formatEther(presaleInfoData.value?.[0] || 0)
   })
 })

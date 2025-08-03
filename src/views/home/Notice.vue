@@ -6,8 +6,8 @@
       </div>
       <div class="overflow-hidden flex-1">
         <div class="announcement-text whitespace-nowrap text-sm">
-<!--          {{notification}}-->
-          聚币交易GDA公链币和HI交易兑全球限购5000份
+          {{notification || '聚币交易GDA公链币和HI交易兑全球限购5000份'}}
+
         </div>
       </div>
     </div>

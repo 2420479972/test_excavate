@@ -29,16 +29,14 @@ const transports:Record<number | string, HttpTransport> = {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
     [optimism.id]: http(),
+    [bsc.id]: http(),
     [bscTestnet.id]: http('https://data-seed-prebsc-1-s1.binance.org:8545/'),
     [localChain.id]:http("http://202.124.251.169:8545")
 
 }
 export const config = createConfig({
-    chains: [bscTestnet,mainnet, sepolia, optimism,localChain],
+    chains: [bscTestnet,mainnet, sepolia, optimism,bsc,localChain],
     connectors: [
-        walletConnect({
-            projectId: import.meta.env.VITE_WC_PROJECT_ID,
-        }),
         coinbaseWallet({appName: 'Vite Vue Playground', darkMode: true}),
         injected(), metaMask(), safe()
     ],

@@ -64,7 +64,6 @@ export const useWrite = <T>(config: { address: string, abi: any }, options: UseW
 
     // 监听交易接收状态，添加更详细的日志
     watch(() => transactionReceipt.value, (newReceipt) => {
-
         if (newReceipt) {
             //
 

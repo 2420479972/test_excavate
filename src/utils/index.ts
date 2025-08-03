@@ -44,6 +44,7 @@ export  function copyToClipboard(text:string) {
 
 // 将秒数格式化为 "YYYY-MM-DD HH:mm:ss"
 export function formatSecondsToDateTime(seconds: number | bigint): string {
+    if(!seconds) return '--'
     // 将 bigint 转换为 number（安全转换）
     const timestamp = typeof seconds === 'bigint' ? Number(seconds) : seconds
 

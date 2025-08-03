@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import Account from './components/Account.vue'
-import Connect from './components/Connect.vue'
-import Home from "./views/Home.vue";
-import Back from "./views/Back.vue";
 import {getPublicVariable} from "./utils/base.ts";
 import {watch} from "vue";
 import {erc20ConfigABI} from "./api";
-import {useAccount, useChainId} from "@wagmi/vue";
+import {useAccount} from "@wagmi/vue";
 import {localAddress,ownerAddress} from "./store/address.ts";
 import Header from "./components/Header.vue";
 
