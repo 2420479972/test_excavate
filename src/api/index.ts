@@ -2,7 +2,7 @@ import abis from "./abi.json";
 import {reactive} from "vue";
 import {erc20Abi} from "viem";
 export const contractConfigABI = reactive({
-    address:'0xd80D4216e5c08C7C8Ee60410EFA9efaCeFACca1f', // 0xeC67DD0a9B3Cf6d7eF5b17048706b1f523C705Fe
+    address:'0x0e16E4a98949A06B75a344902b2c844c11966B42', // 0xeC67DD0a9B3Cf6d7eF5b17048706b1f523C705Fe
     abi:abis,
 })
 
