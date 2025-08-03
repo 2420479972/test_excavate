@@ -75,8 +75,9 @@ const {data:startTime} = getPublicVariable('startTime');
 const getHistoryForGit =async ()=>{
  const response = await fetch('https://raw.githubusercontent.com/EternalProtocol/doc/main/data.json') // 请求指定接口
   const data =await response.json()
-    for(let i = 0;i<10 ;i++){
-    const targetDate = dayjs().add( i, 'day').date()
+  if(!data?.length) return;
+    for(let i = 0;i<data.length ;i++){
+    const targetDate = dayjs().add(i, 'day').date()
     chartDay.value[i] = targetDate + "日"
   }
   data.forEach((item:any,index:number)=>{
@@ -85,6 +86,15 @@ const getHistoryForGit =async ()=>{
   })
 }
 
+
+watch(startTime,(newVal)=>{
+  if(!newVal) return;
+  const now = dayjs();
+  const diffDays = now.diff(Number(newVal) * 1000, 'day'); // 精确到天
+  getHistoryForGit();
+},{
+  immediate:true
+})
 
 onMounted(()=>{
   getHistoryForGit();
