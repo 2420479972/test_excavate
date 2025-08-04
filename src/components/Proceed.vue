@@ -1,4 +1,5 @@
 <template>
+
   <div class="glass-effect rounded-lg p-3 flex items-center hover-glow">
     <!-- 左侧图标与描述 -->
     <div class="flex flex-col items-center mr-4">
@@ -47,6 +48,13 @@
       </div>
     </div>
   </div>
+  <div class="glass-effect rounded-lg px-3 flex items-center hover-glow" v-if="Number(buyCount) > 0">
+    <div class="grid grid-cols-2 mr-4 gap-x-10 gap-y-2">
+      <div class="text-xs">首次认购: {{firstBuyTime || '--'}}</div>
+      <div class="text-xs">上次提取: {{ preTime || '--' }}</div>
+      <div class="text-xs">已认购量: {{buyCount || '--' }}</div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -65,6 +73,9 @@ const props = withDefaults(
       themeColor?: 'primary' | 'secondary'
       disabled?:boolean
       loading?:boolean
+      firstBuyTime:string,
+      preTime:string,
+      buyCount:string,
     }>(),
     {
       themeColor: 'primary',

@@ -38,13 +38,13 @@
           </div>
           <div>
             <p class="text-gray-400 mb-1">已购总量</p>
-            <p class="text-primary">{{bigintToNumberSafe(userInfoData?.[0] || 0)}}份</p>
+            <p class="text-primary">{{buyAllEd}}份</p>
           </div>
         </div>
         <div class="py-3 grid grid-cols-2 gap-4">
           <div>
             <p class="text-gray-400 mb-1">总购次数</p>
-            <p class="text-primary">{{bigintToNumberSafe(presaleInfoData?.[6] || 0)}}次</p>
+            <p class="text-primary">{{buyCount}}次</p>
           </div>
           <div>
             <p class="text-gray-400 mb-1">剩余份数</p>
@@ -68,10 +68,11 @@
 <script setup lang="ts">
 import {formatEther} from "viem";
 import {bigintToNumberSafe, copyToClipboard, formatAddress, formatSecondsToDateTime} from "../../utils";
-import {ref, watch} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {getPublicVariable} from "../../utils/base.ts";
 import {useAccount} from "@wagmi/vue";
 import {Notify} from "../../utils/Toast.ts";
+import dayjs from "dayjs";
 
 const {address} = useAccount();
 const detailShow = ref(false);
@@ -95,6 +96,30 @@ const copyText = (text:string)=>{
         Notify.error('复制失败');
       });
 }
+
+const buyAllEd = ref(false);
+const buyCount = ref(0);
+const dataItems = ref([]);
+const getHistoryForGit =async ()=>{
+  const response = await fetch('https://raw.githubusercontent.com/EternalProtocol/doc/main/data.json') // 请求指定接口
+  dataItems.value = await response.json()
+}
+
+const {data:startTime} = getPublicVariable('startTime');
+
+watch(startTime,(newVal)=>{
+  if(!newVal) return;
+  const now = dayjs();
+  const diffDays = now.startOf('day').diff(dayjs(Number(newVal) * 1000).startOf('day'), 'day');
+  buyAllEd.value = dataItems.value[diffDays] * 5000 || 0;
+  buyCount.value = dataItems.value[diffDays] || 0
+},{
+  immediate:true
+})
+
+onMounted(()=>{
+  getHistoryForGit();
+})
 
 </script>
 

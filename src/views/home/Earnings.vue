@@ -4,7 +4,10 @@
       <h2 class="gradient-text text-xl font-bold">GDA收益</h2>
     </div>
     <Proceed
-        :gdaAmount="formatEther(String(userInfoData?.[1] || 0) as any)"
+        :buy-count="String(bigintToNumberSafe(userInfoData?.[0] || 0))"
+        :first-buy-time="formatSecondsToDateTime(userInfoData?.[3] || 0)"
+        :pre-time="formatSecondsToDateTime(userInfoData?.[4] || 0)"
+        :gdaAmount="Number(formatEther(String(userInfoData?.[1] || 0))).toFixed(2)"
         :pendingGDA="Number(formatEther(String(availableRewardsData || 0) as any)).toFixed(2)"
         :releaseGDA="Number(formatEther(String(userInfoData?.[2] || 0) as any)).toFixed(2)"
         :progress="formatEther(String(userInfoData?.[1] || 0)) == 0 ? 0 : Math.floor(formatEther(String(userInfoData?.[2] || 0))  / formatEther(String(userInfoData?.[1] || 0)))"
@@ -26,6 +29,7 @@ import {ref, watch} from "vue";
 import {useWrite} from "../../hooks/useWrite.ts";
 import {contractConfigABI} from "../../api";
 import {Notify} from "../../utils/Toast.ts";
+import {bigintToNumberSafe, formatSecondsToDateTime} from "../../utils";
 
 const {address} = useAccount();
 const {data:userInfoData,setParams:userInfoSetData} = getPublicVariable('getUserInfo',[address.value]);
