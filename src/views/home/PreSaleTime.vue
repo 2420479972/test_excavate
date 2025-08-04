@@ -33,14 +33,14 @@ const isSellout = ref(false);
 const dataItems = ref([]);
 const getHistoryForGit =async ()=>{
   const response = await fetch('https://raw.githubusercontent.com/EternalProtocol/doc/main/data.json') // 请求指定接口
-  dataItems.value =await response.json()
+  dataItems.value = await response.json()
 }
 
 
 watch(startTime,(newVal)=>{
   if(!newVal) return;
   const now = dayjs();
-  const diffDays = now.diff(Number(newVal) * 1000, 'day'); // 精确到天
+  const diffDays = now.startOf('day').diff(dayjs(Number(newVal) * 1000).startOf('day'), 'day');
   isSellout.value = dataItems.value[diffDays] % 500 == 0;
 },{
   immediate:true

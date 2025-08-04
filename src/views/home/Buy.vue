@@ -16,12 +16,13 @@ import {formatEther} from "viem";
 import Loading from "../../components/Loading.vue";
 import {useRead} from "../../hooks/Read.ts";
 import {contractConfigABI, erc20ConfigABI, erc20GDAConfigABI} from "../../api";
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useAccount, useWatchContractEvent} from "@wagmi/vue";
 import {Notify} from "../../utils/Toast.ts";
 import {getPublicVariable} from "../../utils/base.ts";
 import {useWrite} from "../../hooks/useWrite.ts";
 import {bigintToNumberSafe} from "../../utils";
+import dayjs from "dayjs";
 
 
 const {address} = useAccount();
@@ -60,7 +61,7 @@ const isCounting = computed(() => {
 })
 
 const isBuyDisabled = computed(()=>{
-  return userPurchasedShares.value >= addressLimit.value || isAppPending.value || isBuyPending.value || buyLoading.value || !isCounting.value
+  return isSellout.value || userPurchasedShares.value >= addressLimit.value || isAppPending.value || isBuyPending.value || buyLoading.value || !isCounting.value
 })
 
 const {data:allowanceData,setParams:setAllowanceData} = useRead(erc20ConfigABI,{
@@ -149,6 +150,30 @@ watch(address,(newVal)=>{
   setUserGDABalance([newVal])
 },{
   immediate:true
+})
+
+
+const {data:startTime} = getPublicVariable('startTime');
+
+const isSellout = ref(false);
+const dataItems = ref([]);
+const getHistoryForGit =async ()=>{
+  const response = await fetch('https://raw.githubusercontent.com/EternalProtocol/doc/main/data.json') // 请求指定接口
+  dataItems.value = await response.json()
+}
+
+
+watch(startTime,(newVal)=>{
+  if(!newVal) return;
+  const now = dayjs();
+  const diffDays = now.startOf('day').diff(dayjs(Number(newVal) * 1000).startOf('day'), 'day');
+  isSellout.value = dataItems.value[diffDays] % 500 == 0;
+},{
+  immediate:true
+})
+
+onMounted(()=>{
+  getHistoryForGit();
 })
 
 </script>
