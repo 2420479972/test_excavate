@@ -33,7 +33,7 @@
         <div class="py-3 grid grid-cols-2 gap-4">
           <div>
             <p class="text-gray-400 mb-1">结束时间</p>
-            <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[5] || 0)}}</p>
+            <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[5])}}</p>
 
           </div>
           <div>
@@ -97,7 +97,7 @@ const copyText = (text:string)=>{
       });
 }
 
-const buyAllEd = ref(false);
+const buyAllEd = ref(0);
 const buyCount = ref(0);
 const dataItems = ref([]);
 const getHistoryForGit =async ()=>{
