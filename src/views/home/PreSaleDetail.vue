@@ -38,7 +38,7 @@
           </div>
           <div>
             <p class="text-gray-400 mb-1">已购总量</p>
-            <p class="text-primary">{{buyAllEd}}份</p>
+            <p class="text-primary">{{buyAllEd}} 枚</p>
           </div>
         </div>
         <div class="py-3 grid grid-cols-2 gap-4">
