@@ -17,8 +17,8 @@ import dayjs from "dayjs";
 const {data:presaleInfoData} = getPublicVariable('getPresaleInfo');
 
 const startAndEndTime = computed(()=>({
-  startTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[4]) : 0,
-  endTime:presaleInfoData.value?.length > 0 ? bigintToNumberSafe(presaleInfoData.value?.[5]):0
+  startTime: dayjs('2025-08-04 00:00:00').unix(),
+  endTime: dayjs('2025-08-18 00:00:00').unix()
 }))
 
 const now = ref(Math.floor(Date.now() / 1000))

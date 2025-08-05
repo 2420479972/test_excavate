@@ -27,13 +27,13 @@
           </div>
           <div>
             <p class="text-gray-400 mb-1">开放时间</p>
-            <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[4])}}</p>
+            <p class="text-primary">{{formatSecondsToDateTime(startAndEndTime.startTime)}}</p>
           </div>
         </div>
         <div class="py-3 grid grid-cols-2 gap-4">
           <div>
             <p class="text-gray-400 mb-1">结束时间</p>
-            <p class="text-primary">{{formatSecondsToDateTime(presaleInfoData?.[5])}}</p>
+            <p class="text-primary">{{formatSecondsToDateTime(startAndEndTime.endTime)}}</p>
 
           </div>
           <div>
@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import {formatEther} from "viem";
 import {bigintToNumberSafe, copyToClipboard, formatAddress, formatSecondsToDateTime} from "../../utils";
-import {onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {getPublicVariable} from "../../utils/base.ts";
 import {useAccount} from "@wagmi/vue";
 import {Notify} from "../../utils/Toast.ts";
@@ -76,6 +76,11 @@ import dayjs from "dayjs";
 
 const {address} = useAccount();
 const detailShow = ref(false);
+
+const startAndEndTime = computed(()=>({
+  startTime: dayjs('2025-08-04 00:00:00').unix(),
+  endTime: dayjs('2025-08-18 00:00:00').unix()
+}))
 
 const {data:userInfoData,setParams:userInfoSetData} = getPublicVariable('getUserInfo',[address.value]);
 const {data:presaleInfoData} = getPublicVariable('getPresaleInfo');
@@ -103,19 +108,18 @@ const dataItems = ref([]);
 const getHistoryForGit =async ()=>{
   const response = await fetch('https://raw.githubusercontent.com/EternalProtocol/doc/main/data.json') // 请求指定接口
   dataItems.value = await response.json()
+  const now = dayjs();
+  const diffDays = now.startOf('day').diff(dayjs(Number(startTime) * 1000).startOf('day'), 'day');
+  buyCount.value = dataItems.value.reduce((pre,item)=>{
+    return pre+=item;
+  },0)
+  buyAllEd.value = buyCount.value * 5000 || 0;
+
 }
 
-const {data:startTime} = getPublicVariable('startTime');
 
-watch(startTime,(newVal)=>{
-  if(!newVal) return;
-  const now = dayjs();
-  const diffDays = now.startOf('day').diff(dayjs(Number(newVal) * 1000).startOf('day'), 'day');
-  buyAllEd.value = dataItems.value[diffDays] * 5000 || 0;
-  buyCount.value = dataItems.value[diffDays] || 0
-},{
-  immediate:true
-})
+const startTime = dayjs('2025-08-04 00:00:00').unix();
+
 
 onMounted(()=>{
   getHistoryForGit();

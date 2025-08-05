@@ -69,7 +69,7 @@ const chartDayData = ref<{
 //   immediate:true
 // })
 
-const {data:startTime} = getPublicVariable('startTime');
+const startTime = dayjs('2025-08-04 00:00:00').unix();
 
 
 const getHistoryForGit =async (date:any)=>{
@@ -88,13 +88,7 @@ const getHistoryForGit =async (date:any)=>{
   })
 }
 
-
-watch(startTime,(newVal)=>{
-  if(!newVal) return;
-  getHistoryForGit(Number(newVal) * 1000);
-},{
-  immediate:true
-})
+getHistoryForGit(startTime* 1000);
 
 </script>
 
