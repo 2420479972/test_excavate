@@ -110,9 +110,8 @@ const getHistoryForGit =async ()=>{
   dataItems.value = await response.json()
   const now = dayjs();
   const diffDays = now.startOf('day').diff(dayjs(Number(startTime) * 1000).startOf('day'), 'day');
-  buyCount.value = dataItems.value.reduce((pre,item)=>{
-    return pre+=item;
-  },0)
+  buyCount.value = dataItems.value[dataItems.value.length - 1]
+  console.log(buyCount.value)
   buyAllEd.value = buyCount.value * 5000 || 0;
 
 }
