@@ -75,11 +75,11 @@ const startTime = dayjs('2025-08-04 00:00:00').unix();
 const getHistoryForGit =async (date:any)=>{
  const response = await fetch('https://raw.githubusercontent.com/EternalProtocol/doc/main/data.json') // 请求指定接口
   const data = await response.json()
-  const now = dayjs();
-  const diffDays = now.diff(date, 'day');
+  // const now = dayjs();
+  // const diffDays = now.diff(date, 'day');
   if(!data?.length) return;
     for(let i = 0;i<data.length ;i++){
-    const targetDate = dayjs(dayjs(date).add(diffDays,'day')).add(i, 'day').date()
+    const targetDate = dayjs(dayjs(date)).add(i, 'day').date()
     chartDay.value[i] = targetDate + "日"
   }
   data.forEach((item:any,index:number)=>{
