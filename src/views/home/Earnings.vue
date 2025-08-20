@@ -61,10 +61,6 @@ const {write:claimRewardsWrite} = useWrite(contractConfigABI,{
 })
 
 const receive = ()=>{
-  if(userInfoData.value?.[5]){
-    Notify.warning('您的领取资格已被暂停')
-    return
-  }
   proceedLoading.value = true;
   if(Number(formatEther(String(availableRewardsData.value || 0))).toFixed(2) > 0) {
     claimRewardsWrite()
